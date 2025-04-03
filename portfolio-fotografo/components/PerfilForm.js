@@ -62,56 +62,32 @@ export default function PerfilForm() {
   }, [])
 
   return (
-    <div className="bg-white rounded shadow p-6 mb-8 text-black">
+    <div className="bg-[#111] rounded shadow p-6 mb-8 text-white font-serif">
       <h2 className="text-lg font-semibold mb-4">Editar perfil del fotógrafo</h2>
       {loading ? (
         <p>Cargando perfil...</p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            placeholder="Nombre"
-            className="w-full p-2 border rounded"
-          />
-          <textarea
-            name="descripcion"
-            value={formData.descripcion}
-            onChange={handleChange}
-            placeholder="Descripción"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            className="w-full p-2 border rounded"
-          />
-          <input
-            name="instagram"
-            value={formData.instagram}
-            onChange={handleChange}
-            placeholder="Instagram"
-            className="w-full p-2 border rounded"
-          />
+          <input name="nombre" value={formData.nombre} onChange={handleChange} placeholder="Nombre"
+            className="w-full p-2 border border-white rounded bg-black text-white" />
+          <textarea name="descripcion" value={formData.descripcion} onChange={handleChange}
+            placeholder="Descripción" className="w-full p-2 border border-white rounded bg-black text-white" />
+          <input name="email" value={formData.email} onChange={handleChange} placeholder="Email"
+            className="w-full p-2 border border-white rounded bg-black text-white" />
+          <input name="instagram" value={formData.instagram} onChange={handleChange} placeholder="Instagram"
+            className="w-full p-2 border border-white rounded bg-black text-white" />
+
           <div>
             <label className="block mb-1">Foto de perfil</label>
             <input type="file" accept="image/*" onChange={handleFotoUpload} />
             {formData.foto_url && (
-              <img
-                src={formData.foto_url}
-                alt="Foto perfil"
-                className="w-32 h-32 object-cover rounded-full mt-2"
-              />
+              <img src={formData.foto_url} alt="Foto perfil"
+                className="w-32 h-32 object-cover rounded-full mt-2 border border-white" />
             )}
           </div>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Guardar perfil
+
+          <button type="submit" className="btn-negro">
+            💾 Guardar perfil
           </button>
         </form>
       )}

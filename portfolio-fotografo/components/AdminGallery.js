@@ -1,4 +1,3 @@
-// components/AdminGallery.js
 import {
   useEffect,
   useState,
@@ -93,20 +92,20 @@ const AdminGallery = forwardRef((props, ref) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
       {loading ? (
-        <p className="col-span-full">Cargando imágenes...</p>
+        <p className="col-span-full text-white font-serif">Cargando imágenes...</p>
       ) : fotos.length === 0 ? (
-        <p className="col-span-full">Aún no hay imágenes subidas.</p>
+        <p className="col-span-full text-white font-serif">Aún no hay imágenes subidas.</p>
       ) : (
         fotos.map((foto) => {
           const categoriaNombre =
             categorias.find((c) => c.id === foto.categoria_id)?.nombre || 'Sin categoría'
 
           return (
-            <div key={foto.id} className="bg-white rounded shadow p-4 relative text-black">
+            <div key={foto.id} className="bg-[#111] text-white rounded shadow p-4 relative font-serif">
               <img
                 src={foto.url}
                 alt={foto.nombre}
-                className="w-full h-60 object-cover rounded mb-2"
+                className="w-full h-60 object-cover rounded mb-2 border border-white"
               />
               {editandoId === foto.id ? (
                 <>
@@ -116,14 +115,14 @@ const AdminGallery = forwardRef((props, ref) => {
                     onChange={(e) =>
                       setFormData({ ...formData, nombre: e.target.value })
                     }
-                    className="w-full mb-2 p-2 border rounded"
+                    className="w-full mb-2 p-2 border border-white rounded bg-black text-white"
                   />
                   <select
                     value={formData.categoria_id}
                     onChange={(e) =>
                       setFormData({ ...formData, categoria_id: e.target.value })
                     }
-                    className="w-full mb-2 p-2 border rounded"
+                    className="w-full mb-2 p-2 border border-white rounded bg-rosa-medio text-black"
                   >
                     <option value="">Sin categoría</option>
                     {categorias.map((cat) => (
@@ -135,34 +134,38 @@ const AdminGallery = forwardRef((props, ref) => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => saveEdit(foto)}
-                      className="bg-green-600 text-white px-3 py-1 rounded"
+                      className="btn-negro"
+                      title="Guardar"
                     >
-                      Guardar
+                      💾
                     </button>
                     <button
                       onClick={cancelEdit}
-                      className="bg-gray-500 text-white px-3 py-1 rounded"
+                      className="btn-negro"
+                      title="Cancelar"
                     >
-                      Cancelar
+                      🚫
                     </button>
                   </div>
                 </>
               ) : (
                 <>
                   <p className="text-sm font-medium mb-1 truncate">{foto.nombre}</p>
-                  <p className="text-xs text-gray-600 mb-3">{categoriaNombre}</p>
+                  <p className="text-xs text-gray-400 mb-3">{categoriaNombre}</p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => startEdit(foto)}
-                      className="bg-blue-600 text-white px-3 py-1 text-sm rounded"
+                      className="btn-negro"
+                      title="Editar"
                     >
-                      Editar
+                      ✏️
                     </button>
                     <button
                       onClick={() => handleDelete(foto)}
-                      className="bg-red-600 text-white px-3 py-1 text-sm rounded"
+                      className="btn-negro"
+                      title="Eliminar"
                     >
-                      Eliminar
+                      🗑️
                     </button>
                   </div>
                 </>

@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone'
 import { supabase } from '../lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
 
-export default function UploadForm({ onUpload }) {
+export default function UploadForm({ onUploadSuccess }) {
   const [categorias, setCategorias] = useState([])
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('')
 
@@ -44,17 +44,17 @@ export default function UploadForm({ onUpload }) {
         if (onUploadSuccess) onUploadSuccess()
       }
     }
-  }, [categoriaSeleccionada, onUpload])
+  }, [categoriaSeleccionada, onUploadSuccess])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
   return (
     <div className="mb-4">
-      <label className="block mb-2 text-white">Seleccioná una categoría</label>
+      <label className="block mb-2 text-white font-serif">Seleccioná una categoría</label>
       <select
         value={categoriaSeleccionada}
         onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-        className="mb-4 p-2 rounded text-black w-full"
+        className="mb-4 p-2 rounded bg-rosa-medio text-black border border-white w-full font-serif shadow"
       >
         <option value="">Sin categoría</option>
         {categorias.map((cat) => (
@@ -66,8 +66,8 @@ export default function UploadForm({ onUpload }) {
 
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed p-10 text-center rounded cursor-pointer ${
-          isDragActive ? 'bg-gray-800 text-white' : 'bg-gray-100 text-black'
+        className={`border-2 border-dashed rounded p-10 text-center cursor-pointer transition-colors duration-300 font-serif ${
+          isDragActive ? 'bg-rosa-medio text-black' : 'bg-[#111] text-white'
         }`}
       >
         <input {...getInputProps()} />

@@ -44,13 +44,12 @@ const CategoriaTable = forwardRef((props, ref) => {
     fetchCategorias()
   }, [])
 
-  // Exponer método al padre
   useImperativeHandle(ref, () => ({
     refresh: fetchCategorias
   }))
 
   return (
-    <div className="bg-white rounded shadow p-4 text-black mb-6">
+    <div className="bg-[#111] rounded shadow p-4 text-white mb-6 font-serif">
       <h2 className="text-lg font-semibold mb-4">Categorías existentes</h2>
       <table className="w-full text-left">
         <thead>
@@ -68,7 +67,7 @@ const CategoriaTable = forwardRef((props, ref) => {
                     type="text"
                     value={nuevoNombre}
                     onChange={(e) => setNuevoNombre(e.target.value)}
-                    className="border px-2 py-1 rounded w-full"
+                    className="border border-white bg-black text-white px-2 py-1 rounded w-full"
                   />
                 ) : (
                   cat.nombre
@@ -78,23 +77,26 @@ const CategoriaTable = forwardRef((props, ref) => {
                 {editando === cat.id ? (
                   <button
                     onClick={() => handleSave(cat.id)}
-                    className="bg-green-600 text-white px-2 py-1 rounded"
+                    className="btn-negro"
+                    title="Guardar"
                   >
-                    Guardar
+                    💾
                   </button>
                 ) : (
                   <button
                     onClick={() => handleEdit(cat)}
-                    className="bg-blue-600 text-white px-2 py-1 rounded"
+                    className="btn-negro"
+                    title="Editar"
                   >
-                    Editar
+                    ✏️
                   </button>
                 )}
                 <button
                   onClick={() => handleDelete(cat.id)}
-                  className="bg-red-600 text-white px-2 py-1 rounded"
+                  className="btn-negro"
+                  title="Eliminar"
                 >
-                  Eliminar
+                  🗑️
                 </button>
               </td>
             </tr>
