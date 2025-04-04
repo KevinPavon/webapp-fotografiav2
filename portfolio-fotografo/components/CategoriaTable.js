@@ -107,4 +107,5 @@ const CategoriaTable = forwardRef((props, ref) => {
   )
 })
 
+CategoriaTable.displayName = 'CategoriaTable'
 export default CategoriaTable

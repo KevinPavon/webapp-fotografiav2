@@ -178,4 +178,5 @@ const AdminGallery = forwardRef((props, ref) => {
   )
 })
 
+AdminGallery.displayName = 'AdminGallery'
 export default AdminGallery
