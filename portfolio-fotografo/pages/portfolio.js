@@ -7,6 +7,8 @@ import { useRouter } from 'next/router'
 import Image from 'next/image'
 import 'react-photo-view/dist/react-photo-view.css'
 import Navbar from '../components/Navbar'
+import { NextSeo } from 'next-seo'
+
 
 export default function Portfolio() {
   const [fotos, setFotos] = useState([])
@@ -55,7 +57,20 @@ export default function Portfolio() {
   }
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-b from-black via-[#1a1a1a] to-rosa-claro text-white px-6 py-10 font-serif">
+      <NextSeo
+        title="Portfolio Fotográfico - Irina Wetzel"
+        description="Explorá el portfolio profesional de Irina Wetzel. Retratos, arte y naturaleza en imágenes únicas."
+        canonical="https://irinawetzel.com/portfolio"
+        openGraph={{
+          title: "Portfolio Fotográfico - Irina Wetzel",
+          description: "Explorá el portfolio profesional de Irina Wetzel. Retratos, arte y naturaleza en imágenes únicas.",
+          url: "https://irinawetzel.com/portfolio",
+          type: "website",
+        }}
+      />
+
       <Navbar />
 
       <div className="text-center mb-12">

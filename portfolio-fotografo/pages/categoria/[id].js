@@ -7,6 +7,8 @@ import { PhotoProvider, PhotoView } from 'react-photo-view'
 import 'react-photo-view/dist/react-photo-view.css'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { NextSeo } from 'next-seo'
+
 
 export default function Categoria() {
   const router = useRouter()
@@ -59,6 +61,18 @@ export default function Categoria() {
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-10 font-serif">
+      <NextSeo
+        title={`Categoría: ${nombreCategoria} - Irina Wetzel`}
+        description={`Fotos dentro de la categoría ${nombreCategoria} en el portfolio de Irina Wetzel.`}
+        canonical={`https://irinawetzel.com/categoria/${id}`}
+        openGraph={{
+          title: `Categoría: ${nombreCategoria} - Irina Wetzel`,
+          description: `Fotos dentro de la categoría ${nombreCategoria} en el portfolio de Irina Wetzel.`,
+          url: `https://irinawetzel.com/categoria/${id}`,
+          type: "website",
+        }}
+      />
+
       <Navbar />
       <div className="max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold text-center text-rosa-medio mb-10">

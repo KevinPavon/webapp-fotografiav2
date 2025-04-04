@@ -2,6 +2,8 @@ import Navbar from '../components/Navbar'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import emailjs from '@emailjs/browser'
+import { NextSeo } from 'next-seo'
+
 
 export default function Contacto() {
   const [formData, setFormData] = useState({
@@ -54,6 +56,18 @@ export default function Contacto() {
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-10 font-serif">
+        <NextSeo
+            title="Contacto - Irina Wetzel"
+            description="¿Querés agendar una sesión? Contactá a Irina Wetzel mediante el formulario o redes sociales."
+            canonical="https://irinawetzel.com/contacto"
+            openGraph={{
+                title: "Contacto - Irina Wetzel",
+                description: "¿Querés agendar una sesión? Contactá a Irina Wetzel mediante el formulario o redes sociales.",
+                url: "https://irinawetzel.com/contacto",
+                type: "website",
+            }}
+        />
+
       <Navbar />
 
       <div className="max-w-2xl mx-auto bg-black bg-opacity-80 rounded-2xl p-8 shadow-2xl mt-10">
