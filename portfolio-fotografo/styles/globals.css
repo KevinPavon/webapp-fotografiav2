@@ -6,7 +6,7 @@
   --rosa-claro: #ffe6f0;
   --rosa-medio: #f48fb1;
   --rosa-oscuro: #ad1457;
-  --gradiente-rosa: linear-gradient(135deg, #f48fb1, #ffe6f0);
+  --gradiente-rosa: linear-gradient(to bottom, #f48fb1, #ffe6f0);
 }
 
 body {
@@ -47,3 +47,6 @@ body {
   border-color: #000; /* Borde negro al pasar el mouse */
 }
 
+.font-serif {
+  font-family: 'Times New Roman', serif;
+}
