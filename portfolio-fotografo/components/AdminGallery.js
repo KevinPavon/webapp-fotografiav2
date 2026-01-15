@@ -101,12 +101,13 @@ const AdminGallery = forwardRef((props, ref) => {
             categorias.find((c) => c.id === foto.categoria_id)?.nombre || 'Sin categoría'
 
           return (
-            <div key={foto.id} className="bg-[#111] text-white rounded shadow p-4 relative font-serif">
+            <div key={foto.id} className="bg-[#111] text-white border border-white p-4 relative font-serif">
               <img
                 src={foto.url}
                 alt={foto.nombre}
-                className="w-full h-60 object-cover rounded mb-2 border border-white"
+                className="w-full h-60 object-cover mb-2 border border-white"
               />
+
               {editandoId === foto.id ? (
                 <>
                   <input
@@ -115,14 +116,15 @@ const AdminGallery = forwardRef((props, ref) => {
                     onChange={(e) =>
                       setFormData({ ...formData, nombre: e.target.value })
                     }
-                    className="w-full mb-2 p-2 border border-white rounded bg-black text-white"
+                    className="w-full mb-2 p-2 border border-white bg-black text-white"
                   />
+
                   <select
                     value={formData.categoria_id}
                     onChange={(e) =>
                       setFormData({ ...formData, categoria_id: e.target.value })
                     }
-                    className="w-full mb-2 p-2 border border-white rounded bg-rosa-medio text-black"
+                    className="w-full mb-2 p-2 border border-white bg-black text-white"
                   >
                     <option value="">Sin categoría</option>
                     {categorias.map((cat) => (
@@ -131,19 +133,12 @@ const AdminGallery = forwardRef((props, ref) => {
                       </option>
                     ))}
                   </select>
+
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => saveEdit(foto)}
-                      className="btn-negro"
-                      title="Guardar"
-                    >
+                    <button onClick={() => saveEdit(foto)} className="btn-negro" title="Guardar">
                       💾
                     </button>
-                    <button
-                      onClick={cancelEdit}
-                      className="btn-negro"
-                      title="Cancelar"
-                    >
+                    <button onClick={cancelEdit} className="btn-negro" title="Cancelar">
                       🚫
                     </button>
                   </div>
@@ -153,18 +148,10 @@ const AdminGallery = forwardRef((props, ref) => {
                   <p className="text-sm font-medium mb-1 truncate">{foto.nombre}</p>
                   <p className="text-xs text-gray-400 mb-3">{categoriaNombre}</p>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => startEdit(foto)}
-                      className="btn-negro"
-                      title="Editar"
-                    >
+                    <button onClick={() => startEdit(foto)} className="btn-negro" title="Editar">
                       ✏️
                     </button>
-                    <button
-                      onClick={() => handleDelete(foto)}
-                      className="btn-negro"
-                      title="Eliminar"
-                    >
+                    <button onClick={() => handleDelete(foto)} className="btn-negro" title="Eliminar">
                       🗑️
                     </button>
                   </div>

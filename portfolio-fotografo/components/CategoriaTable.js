@@ -8,7 +8,7 @@ const CategoriaTable = forwardRef((props, ref) => {
 
   const fetchCategorias = async () => {
     const { data } = await supabase.from('categorias').select('*').order('nombre')
-    setCategorias(data)
+    setCategorias(data || [])
   }
 
   const handleEdit = (cat) => {
@@ -35,9 +35,7 @@ const CategoriaTable = forwardRef((props, ref) => {
     if (!confirm('¿Seguro que querés eliminar esta categoría?')) return
 
     const { error } = await supabase.from('categorias').delete().eq('id', id)
-    if (!error) {
-      fetchCategorias()
-    }
+    if (!error) fetchCategorias()
   }
 
   useEffect(() => {
@@ -49,8 +47,9 @@ const CategoriaTable = forwardRef((props, ref) => {
   }))
 
   return (
-    <div className="bg-[#111] rounded shadow p-4 text-white mb-6 font-serif">
+    <div className="bg-[#111] border border-white p-4 text-white mb-6 font-serif">
       <h2 className="text-lg font-semibold mb-4">Categorías existentes</h2>
+
       <table className="w-full text-left">
         <thead>
           <tr>
@@ -58,44 +57,35 @@ const CategoriaTable = forwardRef((props, ref) => {
             <th className="pb-2">Acciones</th>
           </tr>
         </thead>
+
         <tbody>
           {categorias.map((cat) => (
-            <tr key={cat.id}>
+            <tr key={cat.id} className="border-t border-white/20">
               <td className="py-2">
                 {editando === cat.id ? (
                   <input
                     type="text"
                     value={nuevoNombre}
                     onChange={(e) => setNuevoNombre(e.target.value)}
-                    className="border border-white bg-black text-white px-2 py-1 rounded w-full"
+                    className="border border-white bg-black text-white px-2 py-1 w-full"
                   />
                 ) : (
                   cat.nombre
                 )}
               </td>
+
               <td className="py-2 space-x-2">
                 {editando === cat.id ? (
-                  <button
-                    onClick={() => handleSave(cat.id)}
-                    className="btn-negro"
-                    title="Guardar"
-                  >
+                  <button onClick={() => handleSave(cat.id)} className="btn-negro" title="Guardar">
                     💾
                   </button>
                 ) : (
-                  <button
-                    onClick={() => handleEdit(cat)}
-                    className="btn-negro"
-                    title="Editar"
-                  >
+                  <button onClick={() => handleEdit(cat)} className="btn-negro" title="Editar">
                     ✏️
                   </button>
                 )}
-                <button
-                  onClick={() => handleDelete(cat.id)}
-                  className="btn-negro"
-                  title="Eliminar"
-                >
+
+                <button onClick={() => handleDelete(cat.id)} className="btn-negro" title="Eliminar">
                   🗑️
                 </button>
               </td>

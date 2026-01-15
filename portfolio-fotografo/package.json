@@ -13,6 +13,7 @@
     "@google-analytics/data": "^5.1.0",
     "@supabase/supabase-js": "^2.49.4",
     "chart.js": "^4.4.8",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.6.3",
     "googleapis": "^148.0.0",
     "next": "15.2.8",
@@ -22,7 +23,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-icons": "^5.5.0",
-    "react-photo-view": "^1.2.7",
+    "sharp": "^0.34.5",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

@@ -1,53 +1,172 @@
 // pages/portfolio.js
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { PhotoProvider, PhotoView } from 'react-photo-view'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
-import 'react-photo-view/dist/react-photo-view.css'
 import Navbar from '../components/Navbar'
 import { NextSeo } from 'next-seo'
 
+function useContainerWidth() {
+  const ref = useRef(null)
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    if (!ref.current) return
+    const el = ref.current
+
+    const ro = new ResizeObserver((entries) => {
+      const w = entries?.[0]?.contentRect?.width || 0
+      setWidth(Math.floor(w))
+    })
+
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  return { ref, width }
+}
+
+function buildJustifiedRows(photos, containerWidth, targetRowHeight = 420, gap = 14) {
+  if (!containerWidth) return []
+
+  const rows = []
+  let current = []
+  let sumRatios = 0
+
+  for (const p of photos) {
+    const w = Number(p.width) || 0
+    const h = Number(p.height) || 0
+    const ratio = w > 0 && h > 0 ? w / h : 1.5
+
+    current.push({ ...p, ratio })
+    sumRatios += ratio
+
+    const rowWidthAtTarget = sumRatios * targetRowHeight + gap * (current.length - 1)
+    if (rowWidthAtTarget >= containerWidth) {
+      const usable = (containerWidth - 2) - gap * (current.length - 1)
+      const rowHeight = Math.max(240, Math.floor(usable / sumRatios))
+
+      rows.push({
+        height: rowHeight,
+        items: current.map((it) => ({
+          ...it,
+          renderW: Math.floor(it.ratio * rowHeight),
+          renderH: rowHeight,
+        })),
+      })
+
+      current = []
+      sumRatios = 0
+    }
+  }
+
+  if (current.length) {
+    rows.push({
+      height: targetRowHeight,
+      items: current.map((it) => ({
+        ...it,
+        renderW: Math.floor(it.ratio * targetRowHeight),
+        renderH: targetRowHeight,
+      })),
+    })
+  }
+
+  return rows
+}
+
+function JustifiedGallery({
+  photos,
+  onClickPhoto,
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px',
+}) {
+  const { ref, width } = useContainerWidth()
+
+  const gap = width < 640 ? 10 : 14
+  const targetRowHeight = width < 640 ? 360 : width < 1024 ? 440 : 520
+
+  const rows = useMemo(
+    () => buildJustifiedRows(photos, width, targetRowHeight, gap),
+    [photos, width, targetRowHeight, gap]
+  )
+
+  return (
+    <div ref={ref}>
+      {rows.map((row, idx) => (
+        <div key={idx} className="flex" style={{ gap: `${gap}px`, marginBottom: `${gap}px` }}>
+          {row.items.map((foto, i) => {
+            const isPriority = idx === 0 && i < 3
+
+            return (
+              <motion.button
+                key={foto.id}
+                type="button"
+                initial={{ opacity: 0, scale: 0.99 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => onClickPhoto(foto)}
+                className="overflow-hidden cursor-pointer"
+                style={{ width: `${foto.renderW}px`, height: `${foto.renderH}px`, flex: '0 0 auto' }}
+              >
+                <Image
+                  src={foto.url}
+                  alt={foto.nombre || 'Foto'}
+                  width={foto.renderW}
+                  height={foto.renderH}
+                  className="w-full h-full object-cover"
+                  sizes={sizes}
+                  priority={isPriority}
+                  loading={isPriority ? 'eager' : 'lazy'}
+                  placeholder="blur"
+                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP8////fwAJ/wP+vnnNAAAAAElFTkSuQmCC"
+                />
+              </motion.button>
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function Portfolio() {
   const [fotos, setFotos] = useState([])
   const [categorias, setCategorias] = useState([])
-  const [filtro, setFiltro] = useState('')
   const [loading, setLoading] = useState(true)
   const [paginaActual, setPaginaActual] = useState(1)
-  const fotosPorPagina = 9
 
+  const fotosPorPagina = 30
   const router = useRouter()
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
+
       const { data: allFotos } = await supabase
         .from('fotos')
         .select('*')
         .order('created_at', { ascending: false })
+
       const { data: allCategorias } = await supabase
         .from('categorias')
         .select('*')
         .order('nombre')
 
-      setFotos(allFotos)
-      setCategorias(allCategorias)
+      setFotos(allFotos || [])
+      setCategorias(allCategorias || [])
       setLoading(false)
     }
 
     fetchData()
   }, [])
 
-  const fotosFiltradas = filtro
-    ? fotos.filter((f) => f.categoria_id === filtro)
-    : fotos
+  const fotosActuales = useMemo(() => {
+    const end = paginaActual * fotosPorPagina
+    const start = end - fotosPorPagina
+    return fotos.slice(start, end)
+  }, [fotos, paginaActual])
 
-  const indiceUltimaFoto = paginaActual * fotosPorPagina
-  const indicePrimeraFoto = indiceUltimaFoto - fotosPorPagina
-  const fotosActuales = fotosFiltradas.slice(indicePrimeraFoto, indiceUltimaFoto)
-
-  const totalPaginas = Math.ceil(fotosFiltradas.length / fotosPorPagina)
+  const totalPaginas = useMemo(() => Math.ceil(fotos.length / fotosPorPagina), [fotos.length])
 
   const cambiarPagina = (nuevaPagina) => {
     if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
@@ -56,103 +175,71 @@ export default function Portfolio() {
     }
   }
 
+  const irACategoria = (categoriaId) => {
+    if (!categoriaId) return
+    router.push(`/categoria/${categoriaId}`)
+  }
+
+  const abrirFotoEnCategoria = (foto) => {
+    if (!foto?.categoria_id) return
+    router.push(`/categoria/${foto.categoria_id}?photo=${foto.id}`)
+  }
+
   return (
-    
-    <div className="min-h-screen bg-gradient-to-b from-black via-[#1a1a1a] to-rosa-claro text-white px-6 py-10 font-serif">
+    <div className="min-h-screen bg-black text-white px-6 py-10 font-serif">
       <NextSeo
         title="Portfolio Fotográfico - Irina Wetzel"
         description="Explorá el portfolio profesional de Irina Wetzel. Retratos, arte y naturaleza en imágenes únicas."
         canonical="https://irinawetzel.com/portfolio"
         openGraph={{
-          title: "Portfolio Fotográfico - Irina Wetzel",
-          description: "Explorá el portfolio profesional de Irina Wetzel. Retratos, arte y naturaleza en imágenes únicas.",
-          url: "https://irinawetzel.com/portfolio",
-          type: "website",
+          title: 'Portfolio Fotográfico - Irina Wetzel',
+          description: 'Explorá el portfolio profesional de Irina Wetzel. Retratos, arte y naturaleza en imágenes únicas.',
+          url: 'https://irinawetzel.com/portfolio',
+          type: 'website',
         }}
       />
 
       <Navbar />
 
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold text-rosa-medio drop-shadow">
-          Irina Wetzel
-        </h1>
-        <p className="text-lg text-gray-300 mt-2 tracking-wide">
-          Fotografía Profesional
-        </p>
+        <h1 className="text-5xl font-bold text-rosa-medio">Irina Wetzel</h1>
+        <p className="text-lg text-gray-300 mt-2 tracking-wide">Fotografía Profesional</p>
       </div>
 
-      {/* Filtros de categoría */}
-      <div className="flex flex-wrap gap-3 justify-center mb-14">
-        {[{ id: '', nombre: 'Todas' }, ...categorias].map((cat) => {
-          const isActive = filtro === cat.id
+      {/* Categorías (con aire para que no se peguen al borde del navbar) */}
+      <div className="flex flex-wrap gap-3 justify-center mb-14 mt-8">
+        <button
+          type="button"
+          onClick={() => setPaginaActual(1)}
+          className="group px-5 py-2 rounded-full border transition-all duration-300 text-sm sm:text-base
+            border-white text-white hover:bg-[var(--rosa-medio)] hover:text-black shadow"
+        >
+          Todas
+        </button>
 
-          return (
-            <button
-              key={cat.id || 'todas'}
-              onClick={() => { 
-                setFiltro(cat.id); 
-                setPaginaActual(1); 
-              }}
-              className={`group px-5 py-2 rounded-full border transition-all duration-300 text-sm sm:text-base
-                ${isActive
-                  ? 'font-semibold shadow text-black bg-[var(--rosa-medio)]'
-                  : 'border-white text-white hover:bg-[var(--rosa-medio)] hover:text-black'}
-              `}
-            >
-              {cat.nombre}
-            </button>
-          )
-        })}
+        {categorias.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => irACategoria(cat.id)}
+            className="group px-5 py-2 rounded-full border transition-all duration-300 text-sm sm:text-base
+              border-white text-white hover:bg-[var(--rosa-medio)] hover:text-black shadow"
+          >
+            {cat.nombre}
+          </button>
+        ))}
       </div>
 
-      {/* Galería */}
       {loading ? (
         <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="w-16 h-16 border-4 border-t-4 border-[var(--rosa-medio)] border-t-white rounded-full animate-spin"></div>
+          <div className="w-16 h-16 border-4 border-t-4 border-[var(--rosa-medio)] border-t-white animate-spin"></div>
         </div>
       ) : fotosActuales.length === 0 ? (
         <p className="text-center text-gray-400">No hay fotos para mostrar.</p>
       ) : (
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {fotosActuales.map((foto) => {
-              const categoria =
-                categorias.find((c) => c.id === foto.categoria_id)?.nombre || 'Sin categoría'
+          <JustifiedGallery photos={fotosActuales} onClickPhoto={abrirFotoEnCategoria} />
 
-              return (
-                <motion.div
-                  key={foto.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4 }}
-                  onClick={() => router.push(`/categoria/${foto.categoria_id}`)}
-                  className="relative group rounded-xl overflow-hidden shadow-2xl cursor-pointer"
-                >
-                  <Image
-                    src={foto.url}
-                    alt={foto.nombre}
-                    width={600}
-                    height={400}
-                    className="w-full h-[400px] object-cover transition duration-300"
-                    loading="lazy"
-                    unoptimized
-                    placeholder="blur" // 👈 blur activado
-                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP8////fwAJ/wP+vnnNAAAAAElFTkSuQmCC" // 👈 placeholder rosa suave
-                  />
-
-                  {/* Overlay rosa semitransparente */}
-                  <div className="absolute inset-0 bg-rosa-medio bg-opacity-60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                    <span className="text-white text-xl font-semibold tracking-wide drop-shadow-lg">
-                      {categoria}
-                    </span>
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-
-          {/* Paginación */}
           {totalPaginas > 1 && (
             <div className="flex justify-center mt-12 gap-6">
               <button
@@ -161,10 +248,10 @@ export default function Portfolio() {
                 className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
                   paginaActual === 1
                     ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                    : 'bg-black text-white hover:bg-[var(--rosa-medio)] hover:text-black'
+                    : 'bg-black text-white border border-white hover:bg-[var(--rosa-medio)] hover:text-black shadow'
                 }`}
               >
-                ◀ 
+                ◀
               </button>
               <button
                 onClick={() => cambiarPagina(paginaActual + 1)}
@@ -172,10 +259,10 @@ export default function Portfolio() {
                 className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
                   paginaActual === totalPaginas
                     ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                    : 'bg-black text-white hover:bg-[var(--rosa-medio)] hover:text-black'
+                    : 'bg-black text-white border border-white hover:bg-[var(--rosa-medio)] hover:text-black shadow'
                 }`}
               >
-                 ▶
+                ▶
               </button>
             </div>
           )}
